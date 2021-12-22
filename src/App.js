@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Test from './Test';
 
 function App() {
   const [counter, setCounter] = useState(0);
@@ -17,6 +18,7 @@ function App() {
 
   return (
     <div>
+      <Test />
       <input
         type="text"
         placeholder="Search here..."
