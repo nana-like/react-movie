@@ -1,32 +1,31 @@
-import { useEffect, useState } from 'react';
-import Test from './Test';
+import { useState } from 'react';
 
 function App() {
-  const [counter, setCounter] = useState(0);
-  const [keyword, setKeyword] = useState('');
-
-  const onClick = () => setCounter((prev) => prev + 1);
-  const onChange = (e) => setKeyword(e.target.value);
-
-  const iRunOnlyOnce = () => console.log('I run only once!');
-  useEffect(iRunOnlyOnce, []);
-  useEffect(() => {
-    if (keyword !== '') {
-      console.log(`keyword' changes: SEARCH FOR ${keyword}`);
+  const [toDo, setToDo] = useState('');
+  const [toDos, setTodos] = useState([]);
+  const onChange = (e) => setToDo(e.target.value);
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (toDo === '') {
+      return;
     }
-  }, [keyword]);
-
+    setTodos((currentTodos) => [toDo, ...currentTodos]);
+    setToDo('');
+    // 왜 이벤트 내부에서 콘솔을 찍으면 이전 state까지만 표시되는지 궁금
+  };
+  console.log(toDos);
   return (
     <div>
-      <Test />
-      <input
-        type="text"
-        placeholder="Search here..."
-        value={keyword}
-        onChange={onChange}
-      />
-      <h1>{counter}</h1>
-      <button onClick={onClick}>Click Me</button>
+      <h1>My To Dos ({toDos.length})</h1>
+      <form onSubmit={onSubmit}>
+        <input
+          type="text"
+          placeholder="Write your to do..."
+          value={toDo}
+          onChange={onChange}
+        />
+        <button>Add To Do</button>
+      </form>
     </div>
   );
 }
