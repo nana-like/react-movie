@@ -1,0 +1,25 @@
+.currentPrice {
+  border: 1px solid #aaa;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.currentPrice p {
+  margin: 0 0 6px 0;
+}
+
+.currentPrice h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.currentPrice strong {
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+.currentPrice i {
+  margin-left: 4px;
+  color: 666;
+  font-style: normal;
+}

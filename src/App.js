@@ -1,41 +1,96 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import styles from './App.module.css';
 
 function App() {
-  const [toDo, setToDo] = useState('');
-  const [toDos, setTodos] = useState([]);
-  const onChange = (e) => setToDo(e.target.value);
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (toDo === '') {
-      return;
-    }
-    setTodos((currentTodos) => [toDo, ...currentTodos]);
-    // setTodos(function (currentTodos) { return [toDo, ...currentTodos]; });
-    // argument로 현재 state를 넘겨준다.
-    setToDo('');
+  const topCoins = ['BTC', 'ETH', 'BNB', 'KLAY'];
+  const [loading, setLoading] = useState(true);
+  const [coins, setCoins] = useState([]);
+  const [currentUnit, setCurrentUnit] = useState(topCoins[0]);
+  const [value, setValue] = useState('');
+  const onSelect = (e) => {
+    setCurrentUnit(e.target.value);
+    setValue('');
   };
-  console.log(toDos);
-  // 왜 이벤트 내부에서 콘솔을 찍으면 이전 state까지만 표시되는지 궁금
-  console.log(toDos.map((item, index) => <li key={index}>{item}</li>));
+  const onChange = (e) => {
+    if (!e.target.value.replace(/^[1-9]\d*(\d+)?$/i, '')) {
+      setValue(e.target.value);
+    }
+  };
+  const hideDecimal = (number, length) => {
+    return Math.floor(number * 10 ** length) / 10 ** length;
+  };
+  useEffect(() => {
+    fetch('https://api.coinpaprika.com/v1/tickers')
+      .then((response) => response.json())
+      .then((json) => {
+        setCoins(json);
+        setLoading(false);
+      });
+  }, []);
   return (
     <div>
-      <h1>My To Dos ({toDos.length})</h1>
-      <form onSubmit={onSubmit}>
-        <input
-          type="text"
-          placeholder="Write your to do..."
-          value={toDo}
-          onChange={onChange}
-        />
-        <button>Add To Do</button>
-      </form>
-      <hr />
-      <ul>
-        {toDos.map((todo, idx) => (
-          <li key={idx}>{todo}</li>
-        ))}
-      </ul>
-      {/* map() 메서드는 새로운 배열을 리턴한다! */}
+      <h1>My Coins! ({coins.length})</h1>
+      {loading ? (
+        <strong>Loading...</strong>
+      ) : (
+        <div>
+          <div className={styles.currentPrice}>
+            <h2>Current Price</h2>
+            <p></p>
+            {topCoins.map((elem, idx) => (
+              <p key={idx}>
+                <strong>1 {elem} =</strong>
+                <span>
+                  {hideDecimal(
+                    coins.filter((coin) => coin.symbol === elem)[0].quotes.USD
+                      .price,
+                    3
+                  )}
+                </span>
+                <i>USD</i>
+              </p>
+            ))}
+          </div>
+          <div className="convertPrice">
+            <h3>Convert Price</h3>
+            <select onChange={onSelect}>
+              {topCoins.map((elem, idx) => (
+                <option key={idx} defaultValue={idx === 0}>
+                  {elem}
+                </option>
+              ))}
+            </select>
+            <div>
+              <input
+                type="text"
+                value={value}
+                placeholder="Enter here..."
+                onChange={onChange}
+              ></input>
+              <span className="unit">USD</span>
+            </div>
+            <div>
+              <input
+                type="text"
+                disabled
+                value={
+                  value
+                    ? hideDecimal(
+                        value /
+                          coins.filter((coin) => coin.symbol === currentUnit)[0]
+                            .quotes.USD.price,
+                        6
+                      )
+                    : ''
+                }
+                onChange={onChange}
+              ></input>
+              <span className="unit">{currentUnit}</span>
+            </div>
+            <button onClick={() => setValue('')}>Clear</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
